@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 import android.widget.SeekBar;
@@ -39,7 +40,16 @@ public class ControlActivity extends Activity {
     private boolean mFoundGatt = false;
     private BluetoothGattCharacteristic characteristicTx;
     private BluetoothGattService gattService;
+    private NotificationReceiver notifReceiver;
+    private TextView txtView;
 
+    private static final HashMap<String, String> notificationColors;
+    static {
+        notificationColors = new HashMap<>();
+        notificationColors.put("com.motorola.vzw.settings.extensions", "102,51,153");
+    }
+
+    private String lastNotification = "";
 
     public final static UUID UUID_BLE_TX =
             UUID.fromString(BLEGattAttributes.BLE_SHIELD_TX);
@@ -68,6 +78,7 @@ public class ControlActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
+            Log.d(TAG, "This is action: " + action);
             if (BLEService.ACTION_GATT_CONNECTED.equals(action)) {
                 appConnected();
 
@@ -106,6 +117,17 @@ public class ControlActivity extends Activity {
 
         mConnectionState = (TextView) findViewById(R.id.connection_state);
 
+        txtView = (TextView) findViewById(R.id.notif_text_view);
+
+        notifReceiver = new NotificationReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.cle.ambientnotifications.NOTIFICATION_LISTENER");
+        registerReceiver(notifReceiver, intentFilter);
+
+        Intent i = new Intent("com.cle.ambientnotifications.NOTIFICATION_LISTENER_SERVICE");
+        i.putExtra("command", "list");
+        sendBroadcast(i);
+
         mRed = (SeekBar) findViewById(R.id.seekRed);
         mGreen = (SeekBar) findViewById(R.id.seekGreen);
         mBlue = (SeekBar) findViewById(R.id.seekBlue);
@@ -116,6 +138,7 @@ public class ControlActivity extends Activity {
 
         getActionBar().setTitle(mDeviceName);
         getActionBar().setDisplayHomeAsUpEnabled(true);
+
         Intent gattServiceIntent = new Intent(this, BLEService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     }
@@ -124,6 +147,10 @@ public class ControlActivity extends Activity {
     protected void onResume() {
         super.onResume();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.cle.ambientnotifications.NOTIFICATION_LISTENER");
+        registerReceiver(notifReceiver, intentFilter);
 
         if (mBluetoothLeService != null) {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
@@ -140,6 +167,7 @@ public class ControlActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(notifReceiver);
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
     }
@@ -164,7 +192,7 @@ public class ControlActivity extends Activity {
                 mBluetoothLeService.connect(mDeviceAddress);
                 return true;
             case R.id.menu_disconnect:
-                disconnectApp();
+                turnOffLight();
                 mBluetoothLeService.disconnect();
                 return true;
             case android.R.id.home:
@@ -190,6 +218,7 @@ public class ControlActivity extends Activity {
         intentFilter.addAction(BLEService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BLEService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BLEService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction("notification_event");
 
         return intentFilter;
     }
@@ -246,6 +275,44 @@ public class ControlActivity extends Activity {
         }
     }
 
+    private void setColor(String pckt) {
+        if (!mFoundGatt && gattService != null) {
+            characteristicTx = gattService.getCharacteristic(UUID_BLE_TX);
+
+            if (characteristicTx != null) {
+                mFoundGatt = true;
+            }
+        }
+
+        String color = notificationColors.get(pckt);
+
+        String[] colors = color.split(",");
+
+        int sync = 0xa5;
+        int red = 255 - Integer.parseInt(colors[0]);
+        int green = 255 - Integer.parseInt(colors[1]);
+        int blue = 255 - Integer.parseInt(colors[2]);
+        int checksum = red ^ green ^ blue;
+
+        final byte[] sendTx = new byte[] {
+                (byte) sync,
+                (byte) red,
+                (byte) green,
+                (byte) blue,
+                (byte) checksum
+        };
+
+        // Log Bytes
+        for (int i = 0; i < 5; i += 1) {
+            Log.d(TAG, "Byte " + i + ": " + sendTx[i]);
+        }
+
+        if (mConnected && characteristicTx != null) {
+            characteristicTx.setValue(sendTx);
+            mBluetoothLeService.writeCharacteristic(characteristicTx);
+        }
+    }
+
     private void appConnected() {
         if (!mFoundGatt && gattService != null) {
             characteristicTx = gattService.getCharacteristic(UUID_BLE_TX);
@@ -280,7 +347,7 @@ public class ControlActivity extends Activity {
         }
     }
 
-    private void disconnectApp() {
+    private void turnOffLight() {
         if (!mFoundGatt && gattService != null) {
             characteristicTx = gattService.getCharacteristic(UUID_BLE_TX);
 
@@ -303,6 +370,29 @@ public class ControlActivity extends Activity {
         if (mConnected && characteristicTx != null) {
             characteristicTx.setValue(sendTx);
             mBluetoothLeService.writeCharacteristic(characteristicTx);
+        }
+    }
+
+    class NotificationReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "gets here");
+            String event = intent.getStringExtra("notification_event");
+            String pckt = intent.getStringExtra("notification_package");
+
+            if (event.equals("NotificationPosted")) {
+                lastNotification = pckt;
+                setColor(pckt);
+            } else if (event.equals("NotificationRemoved")) {
+                if (lastNotification.equals(pckt)) {
+                    lastNotification = "";
+                    turnOffLight();
+                }
+            }
+
+            String temp = event + ":\n" + pckt;
+            txtView.setText(temp);
         }
     }
 }

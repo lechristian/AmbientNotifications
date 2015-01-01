@@ -63,4 +63,21 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:max="255" />
+
+    <LinearLayout android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/notifs"
+            android:textSize="18sp" />
+
+        <TextView android:id="@+id/notif_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="12sp" />
+    </LinearLayout>
 </LinearLayout>
