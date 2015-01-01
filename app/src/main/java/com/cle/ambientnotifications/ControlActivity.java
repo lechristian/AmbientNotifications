@@ -43,12 +43,25 @@ public class ControlActivity extends Activity {
     private NotificationReceiver notifReceiver;
     private TextView txtView;
     private String defaultColor = "150,150,0";
+    private String facebookColor = "59,89,152";
+    private String snapchatColor = "255,252,0";
+    private String messagingColor = "149,184,42";
+    private String phoneColor = "6,77,176";
 
     private static final HashMap<String, String> notificationColors;
     static {
         notificationColors = new HashMap<>();
         notificationColors.put("com.motorola.vzw.settings.extensions", "102,51,153");
-        notificationColors.put("com.facebook.orca", "");
+        notificationColors.put("com.facebook.orca", "59,89,152");
+        notificationColors.put("com.facebook.katana", "109,132,180");
+        notificationColors.put("com.snapchat.android", "255,252,0");
+        notificationColors.put("com.google.android.apps.inbox", "66,133,244");
+        notificationColors.put("com.google.android.gm", "219,68,55");
+        notificationColors.put("com.mailboxapp", "81,185,219");
+        notificationColors.put("com.google.android.talk", "27,162,97");
+        notificationColors.put("com.android.providers.telephony", "6,77,176");
+        notificationColors.put("com.android.vending", "0,0,0");
+        notificationColors.put("com.android.providers.downloads", "0,0,0");
     }
 
     private String lastNotification = "";
@@ -288,7 +301,17 @@ public class ControlActivity extends Activity {
 
         String color = notificationColors.get(pckt);
         if (color == null) {
-            color = defaultColor;
+            if (pckt.toLowerCase().contains("facebook")) {
+                color = facebookColor;
+            } else if (pckt.toLowerCase().contains("snapchat")) {
+                color = snapchatColor;
+            } else if (pckt.toLowerCase().contains("phon")) {
+                color = phoneColor;
+            } else if (pckt.toLowerCase().contains("messag")) {
+                color = messagingColor;
+            } else {
+                color = defaultColor;
+            }
         }
         String[] colors = color.split(",");
 
@@ -361,7 +384,7 @@ public class ControlActivity extends Activity {
         }
 
         int sync = 0xa5;
-        int off = 0x00;
+        int off = 0xFF;
 
         final byte[] sendTx = new byte[] {
                 (byte) sync,
