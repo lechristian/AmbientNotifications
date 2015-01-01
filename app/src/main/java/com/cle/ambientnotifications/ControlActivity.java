@@ -42,11 +42,13 @@ public class ControlActivity extends Activity {
     private BluetoothGattService gattService;
     private NotificationReceiver notifReceiver;
     private TextView txtView;
+    private String defaultColor = "150,150,0";
 
     private static final HashMap<String, String> notificationColors;
     static {
         notificationColors = new HashMap<>();
         notificationColors.put("com.motorola.vzw.settings.extensions", "102,51,153");
+        notificationColors.put("com.facebook.orca", "");
     }
 
     private String lastNotification = "";
@@ -251,9 +253,9 @@ public class ControlActivity extends Activity {
         }
 
         int sync = 0xa5;
-        int red = RGBFrame[0];
-        int green = RGBFrame[1];
-        int blue = RGBFrame[2];
+        int red = 255 - RGBFrame[0];
+        int green = 255 - RGBFrame[1];
+        int blue = 255 - RGBFrame[2];
         int checksum = red ^ green ^ blue;
 
         final byte[] sendTx = new byte[] {
@@ -285,7 +287,9 @@ public class ControlActivity extends Activity {
         }
 
         String color = notificationColors.get(pckt);
-
+        if (color == null) {
+            color = defaultColor;
+        }
         String[] colors = color.split(",");
 
         int sync = 0xa5;
