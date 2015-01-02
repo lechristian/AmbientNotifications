@@ -2,12 +2,13 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp">
+        android:layout_margin="10dp"
+    android:padding="15dp">
 
     <LinearLayout android:orientation="horizontal"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:layout_margin="10dp">
+        android:layout_marginBottom="25dp">
 
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
@@ -29,55 +30,42 @@
         android:text="@string/red_slide"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_marginBottom="4dp" />
 
     <SeekBar
         android:id="@+id/seekRed"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" 
         android:max="255"
-        />
+        android:layout_marginBottom="10dp" />
 
     <TextView
         android:id="@+id/textView2"
         android:text="@string/green_slide"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_marginBottom="4dp" />
 
 	 <SeekBar
         android:id="@+id/seekGreen"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" 
-        android:max="255" />
+        android:max="255"
+         android:layout_marginBottom="10dp" />
 
 	 <TextView
 	     android:id="@+id/textView3"
 	     android:text="@string/blue_slide"
 	     android:layout_width="wrap_content"
 	     android:layout_height="wrap_content"
-	     android:textAppearance="?android:attr/textAppearanceSmall" />
+	     android:textAppearance="?android:attr/textAppearanceSmall"
+         android:layout_marginBottom="4dp" />
 
 	<SeekBar
 	    android:id="@+id/seekBlue"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:max="255" />
-
-    <LinearLayout android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp">
-
-        <TextView android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/notifs"
-            android:textSize="18sp" />
-
-        <TextView android:id="@+id/notif_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="12sp" />
-    </LinearLayout>
 </LinearLayout>

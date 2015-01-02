@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,7 +42,6 @@ public class ControlActivity extends Activity {
     private BluetoothGattCharacteristic characteristicTx;
     private BluetoothGattService gattService;
     private NotificationReceiver notifReceiver;
-    private TextView txtView;
     private String defaultColor = "150,150,0";
     private String facebookColor = "59,89,152";
     private String snapchatColor = "255,252,0";
@@ -131,8 +131,6 @@ public class ControlActivity extends Activity {
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
 
         mConnectionState = (TextView) findViewById(R.id.connection_state);
-
-        txtView = (TextView) findViewById(R.id.notif_text_view);
 
         notifReceiver = new NotificationReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -417,9 +415,6 @@ public class ControlActivity extends Activity {
                     turnOffLight();
                 }
             }
-
-            String temp = event + ":\n" + pckt;
-            txtView.setText(temp);
         }
     }
 }
