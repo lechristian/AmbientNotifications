@@ -31,4 +31,5 @@
     <string name="green_slide">Green</string>
     <string name="notifs">Notifications</string>
     <string name="empty">No Notifications</string>
+    <string name="set_favorite_color">Set as favorite color</string>
 </resources>
