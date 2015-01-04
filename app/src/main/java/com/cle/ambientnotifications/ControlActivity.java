@@ -364,10 +364,12 @@ public class ControlActivity extends Activity {
             }
         }
 
+        String[] colors = defaultColor.split(",");
+
         int sync = 0xa5;
-        int red = 0x00;
-        int green = 0x33;
-        int blue = 0x00;
+        int red = Integer.parseInt(colors[0]);
+        int green = Integer.parseInt(colors[1]);
+        int blue = Integer.parseInt(colors[2]);
         int checksum = red ^ green ^ blue;
 
         final byte[] sendTx = new byte[] {
